@@ -40,7 +40,8 @@ function playMusic() {
 	wrapper.classList.add('paused')
 	playPauseBtn.querySelector('i').innerText = 'pause'
 	mainAudio.play()
-
+	
+	// audio visualizer
 	const audioContext = new AudioContext()
 	audioSource = audioContext.createMediaElementSource(mainAudio)
 	analyser = audioContext.createAnalyser()
