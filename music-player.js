@@ -11,6 +11,14 @@ const wrapper = document.querySelector('.wrapper'),
 	musicList = wrapper.querySelector('.music-list'),
 	moreMusicBtn = wrapper.querySelector('#more-music'),
 	closeMoreMusic = musicList.querySelector('#close')
+const container = document.getElementById('container')
+const canvas = document.getElementById('canvas1')
+
+canvas.width = window.innerWidth
+canvas.height = window.innerHeight
+const ctx = canvas.getContext('2d')
+let audioSource
+let analyser
 
 let musicIndex = Math.floor(Math.random() * allMusic.length + 1)
 isMusicPaused = true
@@ -32,6 +40,41 @@ function playMusic() {
 	wrapper.classList.add('paused')
 	playPauseBtn.querySelector('i').innerText = 'pause'
 	mainAudio.play()
+
+	const audioContext = new AudioContext()
+	audioSource = audioContext.createMediaElementSource(mainAudio)
+	analyser = audioContext.createAnalyser()
+	audioSource.connect(analyser)
+	analyser.connect(audioContext.destination)
+	analyser.fftSize = 512
+	const bufferLength = analyser.frequencyBinCount
+	const dataArray = new Uint8Array(bufferLength)
+
+	const barWidth = 18
+	let barHeight
+	let x
+
+	function animate() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		x = 0
+		analyser.getByteFrequencyData(dataArray)
+
+		for (let i = 0; i < bufferLength; i++) {
+			barHeight = dataArray[i] * 1.5
+
+			const red = 250 * (i / bufferLength)
+			const green = 00
+			const blue = barHeight + 0.2 * (i / bufferLength)
+
+			ctx.fillStyle = 'rgb(' + red + ',' + green + ',' + blue + ')'
+			ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight)
+
+			x += barWidth + 1
+		}
+		requestAnimationFrame(animate)
+	}
+
+	animate()
 }
 
 //pause music function
